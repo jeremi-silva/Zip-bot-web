@@ -17,23 +17,20 @@
       <p class="text-slate-400 text-sm mt-1">Compra mediante código QR</p>
     </header>
 
-    <!-- CARGANDO INICIAL / CONSULTA MANUAL -->
     <section id="cargando" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center">
       <div class="text-4xl mb-3">⏳</div>
       <p class="font-semibold">Buscando una compra pendiente...</p>
       <p class="text-sm text-slate-400 mt-2">Espere un momento.</p>
     </section>
 
-    <!-- NO HAY ORDEN -->
     <section id="sinOrden" class="hidden bg-slate-900 border border-yellow-600 rounded-2xl p-6 text-center">
       <div class="text-4xl mb-3">📦</div>
       <h2 class="text-xl font-bold">Esperando selección</h2>
       <p class="text-slate-400 mt-3 text-sm">
-        En ZipBot pulse <strong class="text-white">1</strong> o <strong class="text-white">2</strong>
-        para iniciar una compra mediante QR.
+        Seleccione un producto directamente en ZipBot para iniciar una compra mediante QR.
       </p>
       <p class="text-xs text-slate-500 mt-3">
-        Esta página busca una nueva orden automáticamente cada 2.5 segundos.
+        Esta página detectará la nueva orden automáticamente.
       </p>
       <button
         onclick="cargarOrden(false)"
@@ -43,7 +40,6 @@
       </button>
     </section>
 
-    <!-- ORDEN PENDIENTE -->
     <section id="ordenBox" class="hidden bg-slate-900 border border-blue-600 rounded-2xl overflow-hidden">
       <div class="bg-blue-600/10 border-b border-slate-800 p-5 text-center">
         <p class="text-xs uppercase tracking-wider text-blue-400 font-semibold">Compra pendiente</p>
@@ -85,17 +81,17 @@
       </div>
     </section>
 
-    <!-- RESULTADO -->
     <section id="resultado" class="hidden rounded-2xl p-6 text-center mt-4 border">
       <div id="resultadoIcono" class="text-5xl mb-3"></div>
       <h2 id="resultadoTitulo" class="text-xl font-bold"></h2>
       <p id="resultadoTexto" class="text-sm text-slate-300 mt-2"></p>
+      <p id="resultadoDetalle" class="hidden text-xs text-slate-500 mt-3"></p>
       <button
         id="resultadoBtn"
-        onclick="cargarOrden(false)"
+        onclick="nuevaCompra()"
         class="hidden mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full transition"
       >
-        Volver a consultar
+        Nueva compra
       </button>
     </section>
 
@@ -105,22 +101,24 @@
   </main>
 
 <script>
-// En Supabase la función aparece con el nombre "consultar_orden_qr",
-// pero su URL desplegada actualmente conserva el slug "quick-task".
 const CONSULTAR_ORDEN_URL =
   "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/quick-task";
 
 const CONFIRMAR_ORDEN_URL =
   "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/confirmar_orden_Qr";
 
-// ANON/PUBLIC KEY: es la llave pública del proyecto.
+const ESTADO_ORDEN_URL =
+  "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/obtener_orden_confirmada";
+
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s";
 
 const REFRESH_MS = 2500;
+const ESTADO_REFRESH_MS = 2000;
 
 let ordenActual = null;
 let refreshTimer = null;
+let estadoTimer = null;
 let cargandoPeticion = false;
 
 function headersSupabase() {
@@ -143,6 +141,13 @@ function detenerAutoRefresh() {
   }
 }
 
+function detenerSeguimiento() {
+  if (estadoTimer !== null) {
+    clearTimeout(estadoTimer);
+    estadoTimer = null;
+  }
+}
+
 function programarAutoRefresh() {
   detenerAutoRefresh();
   refreshTimer = setTimeout(() => cargarOrden(true), REFRESH_MS);
@@ -154,13 +159,13 @@ function ocultarTodo() {
   });
 }
 
-function mostrarResultado(tipo, titulo, texto, permitirReintento = false) {
+function mostrarResultado(tipo, titulo, texto, detalle = "", mostrarBoton = false) {
   ocultarTodo();
-  detenerAutoRefresh();
 
   const box = document.getElementById("resultado");
   const icono = document.getElementById("resultadoIcono");
   const btn = document.getElementById("resultadoBtn");
+  const detalleEl = document.getElementById("resultadoDetalle");
 
   document.getElementById("resultadoTitulo").textContent = titulo;
   document.getElementById("resultadoTexto").textContent = texto;
@@ -168,22 +173,30 @@ function mostrarResultado(tipo, titulo, texto, permitirReintento = false) {
   box.classList.remove(
     "hidden",
     "bg-green-950", "border-green-600",
+    "bg-blue-950", "border-blue-600",
     "bg-red-950", "border-red-600"
   );
 
   if (tipo === "ok") {
     icono.textContent = "✅";
     box.classList.add("bg-green-950", "border-green-600");
+  } else if (tipo === "espera") {
+    icono.textContent = "⏳";
+    box.classList.add("bg-blue-950", "border-blue-600");
   } else {
     icono.textContent = "❌";
     box.classList.add("bg-red-950", "border-red-600");
   }
 
-  if (permitirReintento) {
-    btn.classList.remove("hidden");
+  if (detalle) {
+    detalleEl.textContent = detalle;
+    detalleEl.classList.remove("hidden");
   } else {
-    btn.classList.add("hidden");
+    detalleEl.classList.add("hidden");
   }
+
+  if (mostrarBoton) btn.classList.remove("hidden");
+  else btn.classList.add("hidden");
 }
 
 async function cargarOrden(silencioso = false) {
@@ -191,9 +204,8 @@ async function cargarOrden(silencioso = false) {
 
   cargandoPeticion = true;
   detenerAutoRefresh();
+  detenerSeguimiento();
 
-  // En una actualización automática dejamos visible "Esperando selección"
-  // para evitar que la pantalla parpadee cada 2.5 segundos.
   if (!silencioso) {
     ordenActual = null;
     ocultarTodo();
@@ -223,7 +235,6 @@ async function cargarOrden(silencioso = false) {
     }
 
     ordenActual = data.orden;
-    detenerAutoRefresh();
     ocultarTodo();
     document.getElementById("ordenBox").classList.remove("hidden");
 
@@ -243,6 +254,7 @@ async function cargarOrden(silencioso = false) {
       "error",
       "No se pudo consultar",
       error.message,
+      "Revise su conexión e intente nuevamente.",
       true
     );
   } finally {
@@ -254,6 +266,7 @@ async function confirmarCompra() {
   if (!ordenActual || cargandoPeticion) return;
 
   detenerAutoRefresh();
+  const ordenId = ordenActual.id;
 
   const boton = document.getElementById("confirmarBtn");
   boton.disabled = true;
@@ -263,28 +276,26 @@ async function confirmarCompra() {
     const response = await fetch(CONFIRMAR_ORDEN_URL, {
       method: "POST",
       headers: headersSupabase(),
-      body: JSON.stringify({ orden_id: ordenActual.id })
+      body: JSON.stringify({ orden_id: ordenId })
     });
 
     const data = await response.json();
     console.log("confirmar_orden_Qr:", data);
 
-    if (!response.ok || data.ok !== true) {
-      if (response.status === 409 || response.status === 410) {
-        throw new Error(
-          data.mensaje || "Esta orden ya no puede confirmarse. Inicie una nueva compra en ZipBot."
-        );
-      }
-      throw new Error(data.mensaje || "No se pudo confirmar la compra");
+    if (!response.ok || data.ok !== true || data.estado !== "confirmada") {
+      throw new Error(data.mensaje || "Supabase no confirmó realmente la orden");
     }
 
     ordenActual = null;
 
     mostrarResultado(
-      "ok",
-      "Compra confirmada",
-      "ZipBot está validando la orden. Espere frente a la máquina para recibir su producto."
+      "espera",
+      "Pago confirmado",
+      "ZipBot está preparando su producto.",
+      "Mantenga esta página abierta; se actualizará automáticamente."
     );
+
+    vigilarDespacho(ordenId);
 
   } catch (error) {
     console.error(error);
@@ -292,13 +303,99 @@ async function confirmarCompra() {
       "error",
       "No se pudo confirmar",
       error.message,
+      "Puede volver a consultar la orden e intentarlo nuevamente.",
       true
     );
   }
 }
 
+async function vigilarDespacho(ordenId) {
+  detenerSeguimiento();
+
+  try {
+    const response = await fetch(ESTADO_ORDEN_URL + "?t=" + Date.now(), {
+      method: "POST",
+      headers: headersSupabase(),
+      body: JSON.stringify({ orden_id: ordenId }),
+      cache: "no-store"
+    });
+
+    const data = await response.json();
+    console.log("obtener_orden_confirmada:", data);
+
+    if (!response.ok || data.ok !== true || !data.orden) {
+      throw new Error(data.mensaje || "No se pudo consultar el estado del despacho");
+    }
+
+    const estado = String(data.orden.estado || "").toLowerCase();
+
+    if (estado === "dispensada") {
+      mostrarResultado(
+        "ok",
+        "Producto listo",
+        "Gracias por su compra.",
+        "Retire su producto de ZipBot. Ya puede cerrar esta página.",
+        true
+      );
+      return;
+    }
+
+    if (estado === "cancelada") {
+      mostrarResultado(
+        "error",
+        "Compra cancelada",
+        "La orden fue cancelada antes de completar el despacho.",
+        "Inicie una nueva compra directamente en ZipBot.",
+        true
+      );
+      return;
+    }
+
+    if (estado === "confirmada" || estado === "pendiente") {
+      mostrarResultado(
+        "espera",
+        "Pago confirmado",
+        "ZipBot está preparando su producto.",
+        "La confirmación ya fue registrada. Espere frente a la máquina."
+      );
+
+      estadoTimer = setTimeout(
+        () => vigilarDespacho(ordenId),
+        ESTADO_REFRESH_MS
+      );
+      return;
+    }
+
+    throw new Error("Estado de orden no reconocido: " + estado);
+
+  } catch (error) {
+    console.error(error);
+
+    // Un fallo temporal de red no cambia el estado visual del pago.
+    mostrarResultado(
+      "espera",
+      "Pago confirmado",
+      "Esperando confirmación del despacho...",
+      "Si la red tarda, ZipBot continuará procesando la compra."
+    );
+
+    estadoTimer = setTimeout(
+      () => vigilarDespacho(ordenId),
+      ESTADO_REFRESH_MS + 1000
+    );
+  }
+}
+
+function nuevaCompra() {
+  detenerSeguimiento();
+  cargarOrden(false);
+}
+
 window.addEventListener("DOMContentLoaded", () => cargarOrden(false));
-window.addEventListener("beforeunload", detenerAutoRefresh);
+window.addEventListener("beforeunload", () => {
+  detenerAutoRefresh();
+  detenerSeguimiento();
+});
 </script>
 </body>
 </html>
