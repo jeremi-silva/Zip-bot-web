@@ -1,1003 +1,278 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    Vending Mecatrónica - Compra QR
-  </title>
-
-
-  <script
-    src="https://cdn.tailwindcss.com">
-  </script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZipBot - Compra QR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-4">
+  <main class="w-full max-w-md">
 
-<body
-  class="
-    bg-slate-950
-    text-white
-    min-h-screen
-    flex
-    items-center
-    justify-center
-    p-4
-  "
->
-
-
-  <main
-    class="
-      w-full
-      max-w-md
-    "
-  >
-
-
-    <!-- ========================================= -->
-    <!-- TITULO -->
-    <!-- ========================================= -->
-
-    <header
-      class="text-center mb-6"
-    >
-
-      <div
-        class="
-          text-5xl
-          mb-3
-        "
-      >
-        🤖
-      </div>
-
-
-      <h1
-        class="
-          text-2xl
-          font-bold
-          text-blue-400
-        "
-      >
-        Vending Mecatrónica
-      </h1>
-
-
-      <p
-        class="
-          text-slate-400
-          text-sm
-          mt-1
-        "
-      >
-        Confirmación de compra mediante QR
-      </p>
-
+    <header class="text-center mb-6">
+      <div class="text-5xl mb-3">🤖</div>
+      <h1 class="text-3xl font-bold text-blue-400">ZipBot</h1>
+      <p class="text-slate-400 text-sm mt-1">Compra mediante código QR</p>
     </header>
 
-
-    <!-- ========================================= -->
-    <!-- CARGANDO -->
-    <!-- ========================================= -->
-
-    <section
-      id="cargando"
-      class="
-        bg-slate-900
-        border
-        border-slate-800
-        rounded-2xl
-        p-6
-        text-center
-      "
-    >
-
-      <div
-        class="
-          text-4xl
-          mb-3
-        "
-      >
-        ⏳
-      </div>
-
-
-      <p
-        class="
-          font-semibold
-        "
-      >
-        Buscando compra pendiente...
-      </p>
-
-
-      <p
-        class="
-          text-sm
-          text-slate-400
-          mt-2
-        "
-      >
-        Espere un momento
-      </p>
-
+    <section id="cargando" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-3">⏳</div>
+      <p class="font-semibold">Buscando una compra pendiente...</p>
+      <p class="text-sm text-slate-400 mt-2">Seleccione primero un producto en ZipBot.</p>
     </section>
 
-
-    <!-- ========================================= -->
-    <!-- SIN ORDEN -->
-    <!-- ========================================= -->
-
-    <section
-      id="sinOrden"
-      class="
-        hidden
-        bg-slate-900
-        border
-        border-yellow-600
-        rounded-2xl
-        p-6
-        text-center
-      "
-    >
-
-      <div
-        class="
-          text-4xl
-          mb-3
-        "
-      >
-        📦
-      </div>
-
-
-      <h2
-        class="
-          text-xl
-          font-bold
-        "
-      >
-        No hay compra pendiente
-      </h2>
-
-
-      <p
-        class="
-          text-slate-400
-          mt-3
-          text-sm
-        "
-      >
-        Primero seleccione un producto
-        desde la máquina expendedora.
+    <section id="sinOrden" class="hidden bg-slate-900 border border-yellow-600 rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-3">📦</div>
+      <h2 class="text-xl font-bold">Esperando selección</h2>
+      <p class="text-slate-400 mt-3 text-sm">
+        En ZipBot pulse 1 o 2 para iniciar una compra QR.
       </p>
-
-
-      <button
-        onclick="cargarOrden()"
-        class="
-          mt-5
-          bg-blue-600
-          hover:bg-blue-500
-          px-5
-          py-3
-          rounded-xl
-          font-semibold
-          w-full
-        "
-      >
-        🔄 Volver a consultar
+      <p class="text-xs text-slate-500 mt-3">
+        Esta página se actualiza automáticamente.
+      </p>
+      <button onclick="cargarOrden()" class="mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full">
+        🔄 Consultar ahora
       </button>
-
     </section>
 
-
-    <!-- ========================================= -->
-    <!-- ORDEN -->
-    <!-- ========================================= -->
-
-    <section
-      id="ordenBox"
-      class="
-        hidden
-        bg-slate-900
-        border
-        border-blue-600
-        rounded-2xl
-        overflow-hidden
-      "
-    >
-
-
-      <div
-        class="
-          bg-blue-600/10
-          border-b
-          border-slate-800
-          p-5
-          text-center
-        "
-      >
-
-        <p
-          class="
-            text-xs
-            uppercase
-            tracking-wider
-            text-blue-400
-            font-semibold
-          "
-        >
-          Compra pendiente
-        </p>
-
-
-        <h2
-          id="nombreProducto"
-          class="
-            text-2xl
-            font-bold
-            mt-2
-          "
-        >
-          Producto
-        </h2>
-
+    <section id="ordenBox" class="hidden bg-slate-900 border border-blue-600 rounded-2xl overflow-hidden">
+      <div class="bg-blue-600/10 border-b border-slate-800 p-5 text-center">
+        <p class="text-xs uppercase tracking-wider text-blue-400 font-semibold">Compra pendiente</p>
+        <h2 id="nombreProducto" class="text-2xl font-bold mt-2">Producto</h2>
       </div>
 
-
-      <div
-        class="
-          p-5
-          space-y-3
-        "
-      >
-
-
-        <div
-          class="
-            flex
-            justify-between
-            bg-slate-800
-            rounded-xl
-            p-3
-          "
-        >
-
-          <span
-            class="text-slate-400"
-          >
-            Orden
-          </span>
-
-          <span
-            id="ordenId"
-            class="font-semibold"
-          >
-            -
-          </span>
-
+      <div class="p-5 space-y-3">
+        <div class="flex justify-between bg-slate-800 rounded-xl p-3">
+          <span class="text-slate-400">Orden</span>
+          <span id="ordenId" class="font-semibold">-</span>
         </div>
 
-
-        <div
-          class="
-            flex
-            justify-between
-            bg-slate-800
-            rounded-xl
-            p-3
-          "
-        >
-
-          <span
-            class="text-slate-400"
-          >
-            Cantidad
-          </span>
-
-          <span
-            id="cantidad"
-            class="font-semibold"
-          >
-            1
-          </span>
-
+        <div class="flex justify-between bg-slate-800 rounded-xl p-3">
+          <span class="text-slate-400">Cantidad</span>
+          <span id="cantidad" class="font-semibold">1</span>
         </div>
 
-
-        <div
-          class="
-            flex
-            justify-between
-            bg-slate-800
-            rounded-xl
-            p-3
-          "
-        >
-
-          <span
-            class="text-slate-400"
-          >
-            Precio unitario
-          </span>
-
-          <span
-            id="precioUnitario"
-            class="font-semibold"
-          >
-            $0.00
-          </span>
-
+        <div class="flex justify-between bg-slate-800 rounded-xl p-3">
+          <span class="text-slate-400">Precio unitario</span>
+          <span id="precioUnitario" class="font-semibold">$0.00</span>
         </div>
 
-
-        <div
-          class="
-            flex
-            justify-between
-            items-center
-            bg-slate-800
-            rounded-xl
-            p-4
-          "
-        >
-
-          <span
-            class="
-              text-lg
-              font-semibold
-            "
-          >
-            Total
-          </span>
-
-          <span
-            id="total"
-            class="
-              text-2xl
-              font-bold
-              text-green-400
-            "
-          >
-            $0.00
-          </span>
-
+        <div class="flex justify-between items-center bg-slate-800 rounded-xl p-4">
+          <span class="text-lg font-semibold">Total</span>
+          <span id="total" class="text-2xl font-bold text-green-400">$0.00</span>
         </div>
-
 
         <button
           id="confirmarBtn"
           onclick="confirmarCompra()"
-          class="
-            bg-green-600
-            hover:bg-green-500
-            disabled:bg-slate-700
-            disabled:text-slate-500
-            disabled:cursor-not-allowed
-            py-4
-            px-5
-            rounded-xl
-            font-bold
-            text-lg
-            w-full
-            transition
-          "
+          class="bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed py-4 px-5 rounded-xl font-bold text-lg w-full transition"
         >
           ✅ Confirmar compra
         </button>
 
-
-        <p
-          class="
-            text-center
-            text-xs
-            text-slate-500
-          "
-        >
-          Confirme únicamente si seleccionó
-          este producto en la máquina.
+        <p class="text-center text-xs text-slate-500">
+          Confirme únicamente si este es el producto que seleccionó en ZipBot.
         </p>
-
       </div>
-
     </section>
 
-
-    <!-- ========================================= -->
-    <!-- RESULTADO -->
-    <!-- ========================================= -->
-
-    <section
-      id="resultado"
-      class="
-        hidden
-        rounded-2xl
-        p-6
-        text-center
-        mt-4
-      "
-    >
-
-      <div
-        id="resultadoIcono"
-        class="
-          text-5xl
-          mb-3
-        "
+    <section id="resultado" class="hidden rounded-2xl p-6 text-center mt-4 border">
+      <div id="resultadoIcono" class="text-5xl mb-3"></div>
+      <h2 id="resultadoTitulo" class="text-xl font-bold"></h2>
+      <p id="resultadoTexto" class="text-sm text-slate-300 mt-2"></p>
+      <button
+        id="resultadoBtn"
+        onclick="cargarOrden()"
+        class="hidden mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full"
       >
-      </div>
-
-
-      <h2
-        id="resultadoTitulo"
-        class="
-          text-xl
-          font-bold
-        "
-      >
-      </h2>
-
-
-      <p
-        id="resultadoTexto"
-        class="
-          text-sm
-          text-slate-300
-          mt-2
-        "
-      >
-      </p>
-
+        Volver a consultar
+      </button>
     </section>
 
-
-    <!-- ========================================= -->
-    <!-- FOOTER -->
-    <!-- ========================================= -->
-
-    <footer
-      class="
-        text-center
-        text-xs
-        text-slate-600
-        mt-6
-      "
-    >
-      ESPOL • Introducción a Mecatrónica
-      <br>
-      Máquina expendedora inteligente
+    <footer class="text-center text-xs text-slate-600 mt-6">
+      ZipBot • ESPOL • Introducción a Mecatrónica
     </footer>
-
-
   </main>
 
-
 <script>
-
-// =====================================================
-// CONFIGURACION
-// =====================================================
-
 const QUICK_TASK_URL =
   "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/quick-task";
-
 
 const CONFIRMAR_URL =
   "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/confirmar_orden_Qr";
 
-
-// Pega aquí LA MISMA ANON KEY PUBLICA
-// que ya tienes en tu index anterior.
-//
-// NO pongas Service Role.
-
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s";
-
-
-// =====================================================
-// ORDEN ACTUAL
-// =====================================================
+// Usa únicamente la ANON/PUBLIC KEY.
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s";
 
 let ordenActual = null;
-
-
-// =====================================================
-// HEADERS
-// =====================================================
+let refreshTimer = null;
+let cargandoPeticion = false;
 
 function headersSupabase() {
-
   return {
-
-    "Content-Type":
-      "application/json",
-
-    "apikey":
-      SUPABASE_ANON_KEY,
-
-    "Authorization":
-      "Bearer " + SUPABASE_ANON_KEY
-
+    "Content-Type": "application/json",
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY
   };
-
 }
-
-
-// =====================================================
-// DINERO
-// =====================================================
 
 function dinero(valor) {
-
-  const numero =
-    Number(valor);
-
-
-  if (
-    Number.isNaN(numero)
-  ) {
-
-    return "$0.00";
-
-  }
-
-
-  return "$" +
-    numero.toFixed(2);
-
+  const numero = Number(valor);
+  return Number.isNaN(numero) ? "$0.00" : "$" + numero.toFixed(2);
 }
 
+function detenerAutoRefresh() {
+  if (refreshTimer !== null) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
+}
 
-// =====================================================
-// OCULTAR
-// =====================================================
+function programarAutoRefresh(ms = 2500) {
+  detenerAutoRefresh();
+  refreshTimer = setTimeout(cargarOrden, ms);
+}
 
 function ocultarTodo() {
-
-  document
-    .getElementById("cargando")
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById("sinOrden")
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById("ordenBox")
-    .classList
-    .add("hidden");
-
-
-  document
-    .getElementById("resultado")
-    .classList
-    .add("hidden");
-
+  ["cargando", "sinOrden", "ordenBox", "resultado"].forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
 }
 
-
-// =====================================================
-// RESULTADO
-// =====================================================
-
-function mostrarResultado(
-  tipo,
-  titulo,
-  texto
-) {
-
+function mostrarResultado(tipo, titulo, texto, permitirReintento = false) {
   ocultarTodo();
+  detenerAutoRefresh();
 
+  const box = document.getElementById("resultado");
+  const icono = document.getElementById("resultadoIcono");
+  const btn = document.getElementById("resultadoBtn");
 
-  const box =
-    document.getElementById(
-      "resultado"
-    );
+  document.getElementById("resultadoTitulo").textContent = titulo;
+  document.getElementById("resultadoTexto").textContent = texto;
 
+  box.classList.remove(
+    "hidden",
+    "bg-green-950", "border-green-600",
+    "bg-red-950", "border-red-600"
+  );
 
-  const icono =
-    document.getElementById(
-      "resultadoIcono"
-    );
-
-
-  document
-    .getElementById(
-      "resultadoTitulo"
-    )
-    .textContent =
-      titulo;
-
-
-  document
-    .getElementById(
-      "resultadoTexto"
-    )
-    .textContent =
-      texto;
-
-
-  box
-    .classList
-    .remove(
-      "hidden",
-      "bg-green-950",
-      "border-green-600",
-      "bg-red-950",
-      "border-red-600"
-    );
-
-
-  box
-    .classList
-    .add(
-      "border"
-    );
-
-
-  if (
-    tipo === "ok"
-  ) {
-
-    icono.textContent =
-      "✅";
-
-
-    box
-      .classList
-      .add(
-        "bg-green-950",
-        "border-green-600"
-      );
-
+  if (tipo === "ok") {
+    icono.textContent = "✅";
+    box.classList.add("bg-green-950", "border-green-600");
+  } else {
+    icono.textContent = "❌";
+    box.classList.add("bg-red-950", "border-red-600");
   }
 
-  else {
-
-    icono.textContent =
-      "❌";
-
-
-    box
-      .classList
-      .add(
-        "bg-red-950",
-        "border-red-600"
-      );
-
+  if (permitirReintento) {
+    btn.classList.remove("hidden");
+  } else {
+    btn.classList.add("hidden");
   }
-
 }
-
-
-// =====================================================
-// CARGAR ORDEN PENDIENTE
-// =====================================================
 
 async function cargarOrden() {
+  if (cargandoPeticion) return;
 
-  ordenActual =
-    null;
-
-
+  cargandoPeticion = true;
+  detenerAutoRefresh();
+  ordenActual = null;
   ocultarTodo();
-
-
-  document
-    .getElementById(
-      "cargando"
-    )
-    .classList
-    .remove(
-      "hidden"
-    );
-
+  document.getElementById("cargando").classList.remove("hidden");
 
   try {
+    const response = await fetch(QUICK_TASK_URL, {
+      method: "GET",
+      headers: headersSupabase(),
+      cache: "no-store"
+    });
 
-    const response =
-      await fetch(
-        QUICK_TASK_URL,
-        {
-          method: "GET",
+    const data = await response.json();
+    console.log("quick-task:", data);
 
-          headers:
-            headersSupabase()
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    console.log(
-      "quick-task:",
-      data
-    );
-
-
-    if (
-      !response.ok
-      ||
-      data.ok !== true
-    ) {
-
-      throw new Error(
-        data.mensaje ||
-        "Error consultando la orden"
-      );
-
+    if (!response.ok || data.ok !== true) {
+      throw new Error(data.mensaje || "Error consultando la orden");
     }
 
-
-    // =============================================
-    // NO HAY ORDEN
-    // =============================================
-
-    if (
-      data.hay_orden !== true
-    ) {
-
+    if (data.hay_orden !== true) {
       ocultarTodo();
-
-
-      document
-        .getElementById(
-          "sinOrden"
-        )
-        .classList
-        .remove(
-          "hidden"
-        );
-
-
+      document.getElementById("sinOrden").classList.remove("hidden");
+      programarAutoRefresh(2500);
       return;
-
     }
 
-
-    // =============================================
-    // HAY ORDEN
-    // =============================================
-
-    ordenActual =
-      data.orden;
-
-
+    ordenActual = data.orden;
     ocultarTodo();
+    document.getElementById("ordenBox").classList.remove("hidden");
 
+    document.getElementById("nombreProducto").textContent = data.producto.Name;
+    document.getElementById("ordenId").textContent = "#" + data.orden.id;
+    document.getElementById("cantidad").textContent = data.orden.quantity;
+    document.getElementById("precioUnitario").textContent = dinero(data.orden.unit_price);
+    document.getElementById("total").textContent = dinero(data.orden.total_price);
 
-    document
-      .getElementById(
-        "ordenBox"
-      )
-      .classList
-      .remove(
-        "hidden"
-      );
-
-
-    document
-      .getElementById(
-        "nombreProducto"
-      )
-      .textContent =
-        data.producto.Name;
-
-
-    document
-      .getElementById(
-        "ordenId"
-      )
-      .textContent =
-        "#" + data.orden.id;
-
-
-    document
-      .getElementById(
-        "cantidad"
-      )
-      .textContent =
-        data.orden.quantity;
-
-
-    document
-      .getElementById(
-        "precioUnitario"
-      )
-      .textContent =
-        dinero(
-          data.orden.unit_price
-        );
-
-
-    document
-      .getElementById(
-        "total"
-      )
-      .textContent =
-        dinero(
-          data.orden.total_price
-        );
-
-
-    const boton =
-      document.getElementById(
-        "confirmarBtn"
-      );
-
-
-    boton.disabled =
-      false;
-
-
-    boton.textContent =
-      "✅ Confirmar compra";
-
-  }
-
-  catch (error) {
-
-    console.error(
-      error
-    );
-
-
+    const boton = document.getElementById("confirmarBtn");
+    boton.disabled = false;
+    boton.textContent = "✅ Confirmar compra";
+  } catch (error) {
+    console.error(error);
     mostrarResultado(
       "error",
-      "Error de conexión",
-      error.message
+      "No se pudo consultar",
+      error.message,
+      true
     );
-
+  } finally {
+    cargandoPeticion = false;
   }
-
 }
-
-
-// =====================================================
-// CONFIRMAR
-// =====================================================
 
 async function confirmarCompra() {
+  if (!ordenActual) return;
 
-  if (
-    !ordenActual
-  ) {
-
-    return;
-
-  }
-
-
-  const boton =
-    document.getElementById(
-      "confirmarBtn"
-    );
-
-
-  boton.disabled =
-    true;
-
-
-  boton.textContent =
-    "Confirmando...";
-
+  detenerAutoRefresh();
+  const boton = document.getElementById("confirmarBtn");
+  boton.disabled = true;
+  boton.textContent = "Confirmando...";
 
   try {
+    const response = await fetch(CONFIRMAR_URL, {
+      method: "POST",
+      headers: headersSupabase(),
+      body: JSON.stringify({ orden_id: ordenActual.id })
+    });
 
-    const response =
-      await fetch(
-        CONFIRMAR_URL,
-        {
+    const data = await response.json();
+    console.log("confirmar_orden_Qr:", data);
 
-          method: "POST",
-
-          headers:
-            headersSupabase(),
-
-          body:
-            JSON.stringify({
-              orden_id:
-                ordenActual.id
-            })
-
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    console.log(
-      "confirmar_orden_Qr:",
-      data
-    );
-
-
-    if (
-      !response.ok
-      ||
-      data.ok !== true
-    ) {
-
-      throw new Error(
-        data.mensaje ||
-        "No se pudo confirmar"
-      );
-
+    if (!response.ok || data.ok !== true) {
+      if (response.status === 409 || response.status === 410) {
+        throw new Error(
+          data.mensaje || "Esta orden ya no puede confirmarse. Inicie una nueva compra en ZipBot."
+        );
+      }
+      throw new Error(data.mensaje || "No se pudo confirmar");
     }
 
-
-    // =============================================
-    // CONFIRMADA
-    // =============================================
-
     mostrarResultado(
-
       "ok",
-
       "Compra confirmada",
-
-      "La máquina recibió su confirmación. "
-      + "Espere mientras se prepara el producto."
-
+      "ZipBot está validando la orden. Espere frente a la máquina para recibir su producto."
     );
-
-
-  }
-
-  catch (error) {
-
-    console.error(
-      error
-    );
-
-
+  } catch (error) {
+    console.error(error);
     mostrarResultado(
-
       "error",
-
       "No se pudo confirmar",
-
-      error.message
-
+      error.message,
+      true
     );
-
   }
-
 }
 
-
-// =====================================================
-// INICIO
-// =====================================================
-
-window.addEventListener(
-  "DOMContentLoaded",
-  cargarOrden
-);
-
+window.addEventListener("DOMContentLoaded", cargarOrden);
+window.addEventListener("beforeunload", detenerAutoRefresh);
 </script>
-
-
 </body>
-
 </html>
