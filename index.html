@@ -1,122 +1,1003 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vending Mecatrónica - Pago QR</title>
-  <!-- Tailwind CSS para diseño moderno sin esfuerzo -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SDK Oficial de Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Vending Mecatrónica - Compra QR
+  </title>
+
+
+  <script
+    src="https://cdn.tailwindcss.com">
+  </script>
+
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between p-4">
 
-  <!-- ENCABEZADO -->
-  <header class="text-center my-4">
-    <h1 class="text-2xl font-bold text-blue-400">🤖 Vending Mecatrónica</h1>
-    <p class="text-slate-400 text-sm">Escoge tu componente para autorizar el despacho</p>
-  </header>
 
-  <!-- CONTENEDOR DE PRODUCTOS -->
-  <main class="grid grid-cols-2 gap-4 max-w-md mx-auto w-full">
-    
-    <!-- Producto 1 -->
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center flex flex-col justify-between">
-      <div>
-        <span class="text-3xl">⚡</span>
-        <h3 class="font-bold text-lg mt-2">Resistencia</h3>
-        <p class="text-xs text-slate-400">Casillero #1</p>
+<body
+  class="
+    bg-slate-950
+    text-white
+    min-h-screen
+    flex
+    items-center
+    justify-center
+    p-4
+  "
+>
+
+
+  <main
+    class="
+      w-full
+      max-w-md
+    "
+  >
+
+
+    <!-- ========================================= -->
+    <!-- TITULO -->
+    <!-- ========================================= -->
+
+    <header
+      class="text-center mb-6"
+    >
+
+      <div
+        class="
+          text-5xl
+          mb-3
+        "
+      >
+        🤖
       </div>
-      <button onclick="comprarProducto(1, 'Resistencia')" class="mt-3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg w-full transition">
-        Comprar $0.50
-      </button>
-    </div>
 
-    <!-- Producto 2 -->
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center flex flex-col justify-between">
-      <div>
-        <span class="text-3xl">💡</span>
-        <h3 class="font-bold text-lg mt-2">Diodo LED</h3>
-        <p class="text-xs text-slate-400">Casillero #2</p>
-      </div>
-      <button onclick="comprarProducto(2, 'Diodo LED')" class="mt-3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg w-full transition">
-        Comprar $0.25
-      </button>
-    </div>
 
-    <!-- Producto 3 -->
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center flex flex-col justify-between">
-      <div>
-        <span class="text-3xl">🔋</span>
-        <h3 class="font-bold text-lg mt-2">Capacitor</h3>
-        <p class="text-xs text-slate-400">Casillero #3</p>
-      </div>
-      <button onclick="comprarProducto(3, 'Capacitor')" class="mt-3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg w-full transition">
-        Comprar $0.75
-      </button>
-    </div>
+      <h1
+        class="
+          text-2xl
+          font-bold
+          text-blue-400
+        "
+      >
+        Vending Mecatrónica
+      </h1>
 
-    <!-- Producto 4 -->
-    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center flex flex-col justify-between">
-      <div>
-        <span class="text-3xl">🔌</span>
-        <h3 class="font-bold text-lg mt-2">Diodo 1N4007</h3>
-        <p class="text-xs text-slate-400">Casillero #4</p>
+
+      <p
+        class="
+          text-slate-400
+          text-sm
+          mt-1
+        "
+      >
+        Confirmación de compra mediante QR
+      </p>
+
+    </header>
+
+
+    <!-- ========================================= -->
+    <!-- CARGANDO -->
+    <!-- ========================================= -->
+
+    <section
+      id="cargando"
+      class="
+        bg-slate-900
+        border
+        border-slate-800
+        rounded-2xl
+        p-6
+        text-center
+      "
+    >
+
+      <div
+        class="
+          text-4xl
+          mb-3
+        "
+      >
+        ⏳
       </div>
-      <button onclick="comprarProducto(4, 'Diodo 1N4007')" class="mt-3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg w-full transition">
-        Comprar $0.30
+
+
+      <p
+        class="
+          font-semibold
+        "
+      >
+        Buscando compra pendiente...
+      </p>
+
+
+      <p
+        class="
+          text-sm
+          text-slate-400
+          mt-2
+        "
+      >
+        Espere un momento
+      </p>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- SIN ORDEN -->
+    <!-- ========================================= -->
+
+    <section
+      id="sinOrden"
+      class="
+        hidden
+        bg-slate-900
+        border
+        border-yellow-600
+        rounded-2xl
+        p-6
+        text-center
+      "
+    >
+
+      <div
+        class="
+          text-4xl
+          mb-3
+        "
+      >
+        📦
+      </div>
+
+
+      <h2
+        class="
+          text-xl
+          font-bold
+        "
+      >
+        No hay compra pendiente
+      </h2>
+
+
+      <p
+        class="
+          text-slate-400
+          mt-3
+          text-sm
+        "
+      >
+        Primero seleccione un producto
+        desde la máquina expendedora.
+      </p>
+
+
+      <button
+        onclick="cargarOrden()"
+        class="
+          mt-5
+          bg-blue-600
+          hover:bg-blue-500
+          px-5
+          py-3
+          rounded-xl
+          font-semibold
+          w-full
+        "
+      >
+        🔄 Volver a consultar
       </button>
-    </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- ORDEN -->
+    <!-- ========================================= -->
+
+    <section
+      id="ordenBox"
+      class="
+        hidden
+        bg-slate-900
+        border
+        border-blue-600
+        rounded-2xl
+        overflow-hidden
+      "
+    >
+
+
+      <div
+        class="
+          bg-blue-600/10
+          border-b
+          border-slate-800
+          p-5
+          text-center
+        "
+      >
+
+        <p
+          class="
+            text-xs
+            uppercase
+            tracking-wider
+            text-blue-400
+            font-semibold
+          "
+        >
+          Compra pendiente
+        </p>
+
+
+        <h2
+          id="nombreProducto"
+          class="
+            text-2xl
+            font-bold
+            mt-2
+          "
+        >
+          Producto
+        </h2>
+
+      </div>
+
+
+      <div
+        class="
+          p-5
+          space-y-3
+        "
+      >
+
+
+        <div
+          class="
+            flex
+            justify-between
+            bg-slate-800
+            rounded-xl
+            p-3
+          "
+        >
+
+          <span
+            class="text-slate-400"
+          >
+            Orden
+          </span>
+
+          <span
+            id="ordenId"
+            class="font-semibold"
+          >
+            -
+          </span>
+
+        </div>
+
+
+        <div
+          class="
+            flex
+            justify-between
+            bg-slate-800
+            rounded-xl
+            p-3
+          "
+        >
+
+          <span
+            class="text-slate-400"
+          >
+            Cantidad
+          </span>
+
+          <span
+            id="cantidad"
+            class="font-semibold"
+          >
+            1
+          </span>
+
+        </div>
+
+
+        <div
+          class="
+            flex
+            justify-between
+            bg-slate-800
+            rounded-xl
+            p-3
+          "
+        >
+
+          <span
+            class="text-slate-400"
+          >
+            Precio unitario
+          </span>
+
+          <span
+            id="precioUnitario"
+            class="font-semibold"
+          >
+            $0.00
+          </span>
+
+        </div>
+
+
+        <div
+          class="
+            flex
+            justify-between
+            items-center
+            bg-slate-800
+            rounded-xl
+            p-4
+          "
+        >
+
+          <span
+            class="
+              text-lg
+              font-semibold
+            "
+          >
+            Total
+          </span>
+
+          <span
+            id="total"
+            class="
+              text-2xl
+              font-bold
+              text-green-400
+            "
+          >
+            $0.00
+          </span>
+
+        </div>
+
+
+        <button
+          id="confirmarBtn"
+          onclick="confirmarCompra()"
+          class="
+            bg-green-600
+            hover:bg-green-500
+            disabled:bg-slate-700
+            disabled:text-slate-500
+            disabled:cursor-not-allowed
+            py-4
+            px-5
+            rounded-xl
+            font-bold
+            text-lg
+            w-full
+            transition
+          "
+        >
+          ✅ Confirmar compra
+        </button>
+
+
+        <p
+          class="
+            text-center
+            text-xs
+            text-slate-500
+          "
+        >
+          Confirme únicamente si seleccionó
+          este producto en la máquina.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- RESULTADO -->
+    <!-- ========================================= -->
+
+    <section
+      id="resultado"
+      class="
+        hidden
+        rounded-2xl
+        p-6
+        text-center
+        mt-4
+      "
+    >
+
+      <div
+        id="resultadoIcono"
+        class="
+          text-5xl
+          mb-3
+        "
+      >
+      </div>
+
+
+      <h2
+        id="resultadoTitulo"
+        class="
+          text-xl
+          font-bold
+        "
+      >
+      </h2>
+
+
+      <p
+        id="resultadoTexto"
+        class="
+          text-sm
+          text-slate-300
+          mt-2
+        "
+      >
+      </p>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- FOOTER -->
+    <!-- ========================================= -->
+
+    <footer
+      class="
+        text-center
+        text-xs
+        text-slate-600
+        mt-6
+      "
+    >
+      ESPOL • Introducción a Mecatrónica
+      <br>
+      Máquina expendedora inteligente
+    </footer>
+
 
   </main>
 
-  <!-- SECCIÓN DE ESTADO / ALERTAS -->
-  <div id="statusBox" class="hidden max-w-md mx-auto w-full bg-slate-800 border p-4 rounded-xl text-center my-4">
-    <p id="statusText" class="font-bold text-sm"></p>
-  </div>
 
-  <!-- PIE DE PÁGINA -->
-  <footer class="text-center text-xs text-slate-500 my-4">
-    Sistema de Venta Automatizado • Conectado a Supabase
-  </footer>
+<script>
 
-  <!-- LÓGICA JAVASCRIPT -->
-  <script>
-    // Configuración de Supabase (Reemplaza con tus llaves públicas)
-    const SUPABASE_URL = 'https://ijrmiocmibwanzvdtmdt.supabase.co/rest/v1/';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s'; // Usar la Anon Public Key
+// =====================================================
+// CONFIGURACION
+// =====================================================
 
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const QUICK_TASK_URL =
+  "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/quick-task";
 
-    async function comprarProducto(productId, nombreProducto) {
-      const statusBox = document.getElementById('statusBox');
-      const statusText = document.getElementById('statusText');
 
-      statusBox.classList.remove('hidden', 'border-green-500', 'border-red-500', 'border-yellow-500');
-      statusBox.classList.add('border-yellow-500');
-      statusText.innerText = `⏳ Autorizando despacho de ${nombreProducto}...`;
+const CONFIRMAR_URL =
+  "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/confirmar_orden_Qr";
 
-      try {
-        // Enviar la orden de compra a la tabla o Edge Function de Supabase
-        const { data, error } = await _supabase
-          .from('ordenes_qr')
-          .insert([
-            { product_id: productId, estado: 'pendiente' }
-          ]);
 
-        if (error) throw error;
+// Pega aquí LA MISMA ANON KEY PUBLICA
+// que ya tienes en tu index anterior.
+//
+// NO pongas Service Role.
 
-        statusBox.classList.remove('border-yellow-500');
-        statusBox.classList.add('border-green-500');
-        statusText.innerText = `✅ ¡Pago Exitoso! Mire la máquina para recibir su ${nombreProducto}.`;
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s";
 
-      } catch (err) {
-        console.error(err);
-        statusBox.classList.remove('border-yellow-500');
-        statusBox.classList.add('border-red-500');
-        statusText.innerText = `❌ Error al procesar el pago: ${err.message}`;
-      }
+
+// =====================================================
+// ORDEN ACTUAL
+// =====================================================
+
+let ordenActual = null;
+
+
+// =====================================================
+// HEADERS
+// =====================================================
+
+function headersSupabase() {
+
+  return {
+
+    "Content-Type":
+      "application/json",
+
+    "apikey":
+      SUPABASE_ANON_KEY,
+
+    "Authorization":
+      "Bearer " + SUPABASE_ANON_KEY
+
+  };
+
+}
+
+
+// =====================================================
+// DINERO
+// =====================================================
+
+function dinero(valor) {
+
+  const numero =
+    Number(valor);
+
+
+  if (
+    Number.isNaN(numero)
+  ) {
+
+    return "$0.00";
+
+  }
+
+
+  return "$" +
+    numero.toFixed(2);
+
+}
+
+
+// =====================================================
+// OCULTAR
+// =====================================================
+
+function ocultarTodo() {
+
+  document
+    .getElementById("cargando")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("sinOrden")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("ordenBox")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("resultado")
+    .classList
+    .add("hidden");
+
+}
+
+
+// =====================================================
+// RESULTADO
+// =====================================================
+
+function mostrarResultado(
+  tipo,
+  titulo,
+  texto
+) {
+
+  ocultarTodo();
+
+
+  const box =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  const icono =
+    document.getElementById(
+      "resultadoIcono"
+    );
+
+
+  document
+    .getElementById(
+      "resultadoTitulo"
+    )
+    .textContent =
+      titulo;
+
+
+  document
+    .getElementById(
+      "resultadoTexto"
+    )
+    .textContent =
+      texto;
+
+
+  box
+    .classList
+    .remove(
+      "hidden",
+      "bg-green-950",
+      "border-green-600",
+      "bg-red-950",
+      "border-red-600"
+    );
+
+
+  box
+    .classList
+    .add(
+      "border"
+    );
+
+
+  if (
+    tipo === "ok"
+  ) {
+
+    icono.textContent =
+      "✅";
+
+
+    box
+      .classList
+      .add(
+        "bg-green-950",
+        "border-green-600"
+      );
+
+  }
+
+  else {
+
+    icono.textContent =
+      "❌";
+
+
+    box
+      .classList
+      .add(
+        "bg-red-950",
+        "border-red-600"
+      );
+
+  }
+
+}
+
+
+// =====================================================
+// CARGAR ORDEN PENDIENTE
+// =====================================================
+
+async function cargarOrden() {
+
+  ordenActual =
+    null;
+
+
+  ocultarTodo();
+
+
+  document
+    .getElementById(
+      "cargando"
+    )
+    .classList
+    .remove(
+      "hidden"
+    );
+
+
+  try {
+
+    const response =
+      await fetch(
+        QUICK_TASK_URL,
+        {
+          method: "GET",
+
+          headers:
+            headersSupabase()
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    console.log(
+      "quick-task:",
+      data
+    );
+
+
+    if (
+      !response.ok
+      ||
+      data.ok !== true
+    ) {
+
+      throw new Error(
+        data.mensaje ||
+        "Error consultando la orden"
+      );
+
     }
-  </script>
+
+
+    // =============================================
+    // NO HAY ORDEN
+    // =============================================
+
+    if (
+      data.hay_orden !== true
+    ) {
+
+      ocultarTodo();
+
+
+      document
+        .getElementById(
+          "sinOrden"
+        )
+        .classList
+        .remove(
+          "hidden"
+        );
+
+
+      return;
+
+    }
+
+
+    // =============================================
+    // HAY ORDEN
+    // =============================================
+
+    ordenActual =
+      data.orden;
+
+
+    ocultarTodo();
+
+
+    document
+      .getElementById(
+        "ordenBox"
+      )
+      .classList
+      .remove(
+        "hidden"
+      );
+
+
+    document
+      .getElementById(
+        "nombreProducto"
+      )
+      .textContent =
+        data.producto.Name;
+
+
+    document
+      .getElementById(
+        "ordenId"
+      )
+      .textContent =
+        "#" + data.orden.id;
+
+
+    document
+      .getElementById(
+        "cantidad"
+      )
+      .textContent =
+        data.orden.quantity;
+
+
+    document
+      .getElementById(
+        "precioUnitario"
+      )
+      .textContent =
+        dinero(
+          data.orden.unit_price
+        );
+
+
+    document
+      .getElementById(
+        "total"
+      )
+      .textContent =
+        dinero(
+          data.orden.total_price
+        );
+
+
+    const boton =
+      document.getElementById(
+        "confirmarBtn"
+      );
+
+
+    boton.disabled =
+      false;
+
+
+    boton.textContent =
+      "✅ Confirmar compra";
+
+  }
+
+  catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    mostrarResultado(
+      "error",
+      "Error de conexión",
+      error.message
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// CONFIRMAR
+// =====================================================
+
+async function confirmarCompra() {
+
+  if (
+    !ordenActual
+  ) {
+
+    return;
+
+  }
+
+
+  const boton =
+    document.getElementById(
+      "confirmarBtn"
+    );
+
+
+  boton.disabled =
+    true;
+
+
+  boton.textContent =
+    "Confirmando...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        CONFIRMAR_URL,
+        {
+
+          method: "POST",
+
+          headers:
+            headersSupabase(),
+
+          body:
+            JSON.stringify({
+              orden_id:
+                ordenActual.id
+            })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    console.log(
+      "confirmar_orden_Qr:",
+      data
+    );
+
+
+    if (
+      !response.ok
+      ||
+      data.ok !== true
+    ) {
+
+      throw new Error(
+        data.mensaje ||
+        "No se pudo confirmar"
+      );
+
+    }
+
+
+    // =============================================
+    // CONFIRMADA
+    // =============================================
+
+    mostrarResultado(
+
+      "ok",
+
+      "Compra confirmada",
+
+      "La máquina recibió su confirmación. "
+      + "Espere mientras se prepara el producto."
+
+    );
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    mostrarResultado(
+
+      "error",
+
+      "No se pudo confirmar",
+
+      error.message
+
+    );
+
+  }
+
+}
+
+
+// =====================================================
+// INICIO
+// =====================================================
+
+window.addEventListener(
+  "DOMContentLoaded",
+  cargarOrden
+);
+
+</script>
+
+
 </body>
+
 </html>
