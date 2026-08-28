@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020617">
   <title>ZipBot - Compra QR</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -16,26 +17,33 @@
       <p class="text-slate-400 text-sm mt-1">Compra mediante código QR</p>
     </header>
 
+    <!-- CARGANDO INICIAL / CONSULTA MANUAL -->
     <section id="cargando" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center">
       <div class="text-4xl mb-3">⏳</div>
       <p class="font-semibold">Buscando una compra pendiente...</p>
-      <p class="text-sm text-slate-400 mt-2">Seleccione primero un producto en ZipBot.</p>
+      <p class="text-sm text-slate-400 mt-2">Espere un momento.</p>
     </section>
 
+    <!-- NO HAY ORDEN -->
     <section id="sinOrden" class="hidden bg-slate-900 border border-yellow-600 rounded-2xl p-6 text-center">
       <div class="text-4xl mb-3">📦</div>
       <h2 class="text-xl font-bold">Esperando selección</h2>
       <p class="text-slate-400 mt-3 text-sm">
-        En ZipBot pulse 1 o 2 para iniciar una compra QR.
+        En ZipBot pulse <strong class="text-white">1</strong> o <strong class="text-white">2</strong>
+        para iniciar una compra mediante QR.
       </p>
       <p class="text-xs text-slate-500 mt-3">
-        Esta página se actualiza automáticamente.
+        Esta página busca una nueva orden automáticamente cada 2.5 segundos.
       </p>
-      <button onclick="cargarOrden()" class="mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full">
+      <button
+        onclick="cargarOrden(false)"
+        class="mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full transition"
+      >
         🔄 Consultar ahora
       </button>
     </section>
 
+    <!-- ORDEN PENDIENTE -->
     <section id="ordenBox" class="hidden bg-slate-900 border border-blue-600 rounded-2xl overflow-hidden">
       <div class="bg-blue-600/10 border-b border-slate-800 p-5 text-center">
         <p class="text-xs uppercase tracking-wider text-blue-400 font-semibold">Compra pendiente</p>
@@ -77,14 +85,15 @@
       </div>
     </section>
 
+    <!-- RESULTADO -->
     <section id="resultado" class="hidden rounded-2xl p-6 text-center mt-4 border">
       <div id="resultadoIcono" class="text-5xl mb-3"></div>
       <h2 id="resultadoTitulo" class="text-xl font-bold"></h2>
       <p id="resultadoTexto" class="text-sm text-slate-300 mt-2"></p>
       <button
         id="resultadoBtn"
-        onclick="cargarOrden()"
-        class="hidden mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full"
+        onclick="cargarOrden(false)"
+        class="hidden mt-5 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold w-full transition"
       >
         Volver a consultar
       </button>
@@ -96,14 +105,19 @@
   </main>
 
 <script>
-const QUICK_TASK_URL =
+// En Supabase la función aparece con el nombre "consultar_orden_qr",
+// pero su URL desplegada actualmente conserva el slug "quick-task".
+const CONSULTAR_ORDEN_URL =
   "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/quick-task";
 
-const CONFIRMAR_URL =
+const CONFIRMAR_ORDEN_URL =
   "https://ijrmiocmibwanzvdtmdt.supabase.co/functions/v1/confirmar_orden_Qr";
 
-// Usa únicamente la ANON/PUBLIC KEY.
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s";
+// ANON/PUBLIC KEY: es la llave pública del proyecto.
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqcm1pb2NtaWJ3YW56dmR0bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5ODYzMDcsImV4cCI6MjEwMTU2MjMwN30.KUTr0xewMNLJ0865IyUkum_CiX3sm5VaPJaeBobOJ4s";
+
+const REFRESH_MS = 2500;
 
 let ordenActual = null;
 let refreshTimer = null;
@@ -129,9 +143,9 @@ function detenerAutoRefresh() {
   }
 }
 
-function programarAutoRefresh(ms = 2500) {
+function programarAutoRefresh() {
   detenerAutoRefresh();
-  refreshTimer = setTimeout(cargarOrden, ms);
+  refreshTimer = setTimeout(() => cargarOrden(true), REFRESH_MS);
 }
 
 function ocultarTodo() {
@@ -172,37 +186,44 @@ function mostrarResultado(tipo, titulo, texto, permitirReintento = false) {
   }
 }
 
-async function cargarOrden() {
+async function cargarOrden(silencioso = false) {
   if (cargandoPeticion) return;
 
   cargandoPeticion = true;
   detenerAutoRefresh();
-  ordenActual = null;
-  ocultarTodo();
-  document.getElementById("cargando").classList.remove("hidden");
+
+  // En una actualización automática dejamos visible "Esperando selección"
+  // para evitar que la pantalla parpadee cada 2.5 segundos.
+  if (!silencioso) {
+    ordenActual = null;
+    ocultarTodo();
+    document.getElementById("cargando").classList.remove("hidden");
+  }
 
   try {
-    const response = await fetch(QUICK_TASK_URL, {
+    const response = await fetch(CONSULTAR_ORDEN_URL + "?t=" + Date.now(), {
       method: "GET",
       headers: headersSupabase(),
       cache: "no-store"
     });
 
     const data = await response.json();
-    console.log("quick-task:", data);
+    console.log("consultar_orden_qr:", data);
 
     if (!response.ok || data.ok !== true) {
       throw new Error(data.mensaje || "Error consultando la orden");
     }
 
     if (data.hay_orden !== true) {
+      ordenActual = null;
       ocultarTodo();
       document.getElementById("sinOrden").classList.remove("hidden");
-      programarAutoRefresh(2500);
+      programarAutoRefresh();
       return;
     }
 
     ordenActual = data.orden;
+    detenerAutoRefresh();
     ocultarTodo();
     document.getElementById("ordenBox").classList.remove("hidden");
 
@@ -215,6 +236,7 @@ async function cargarOrden() {
     const boton = document.getElementById("confirmarBtn");
     boton.disabled = false;
     boton.textContent = "✅ Confirmar compra";
+
   } catch (error) {
     console.error(error);
     mostrarResultado(
@@ -229,15 +251,16 @@ async function cargarOrden() {
 }
 
 async function confirmarCompra() {
-  if (!ordenActual) return;
+  if (!ordenActual || cargandoPeticion) return;
 
   detenerAutoRefresh();
+
   const boton = document.getElementById("confirmarBtn");
   boton.disabled = true;
   boton.textContent = "Confirmando...";
 
   try {
-    const response = await fetch(CONFIRMAR_URL, {
+    const response = await fetch(CONFIRMAR_ORDEN_URL, {
       method: "POST",
       headers: headersSupabase(),
       body: JSON.stringify({ orden_id: ordenActual.id })
@@ -252,14 +275,17 @@ async function confirmarCompra() {
           data.mensaje || "Esta orden ya no puede confirmarse. Inicie una nueva compra en ZipBot."
         );
       }
-      throw new Error(data.mensaje || "No se pudo confirmar");
+      throw new Error(data.mensaje || "No se pudo confirmar la compra");
     }
+
+    ordenActual = null;
 
     mostrarResultado(
       "ok",
       "Compra confirmada",
       "ZipBot está validando la orden. Espere frente a la máquina para recibir su producto."
     );
+
   } catch (error) {
     console.error(error);
     mostrarResultado(
@@ -271,7 +297,7 @@ async function confirmarCompra() {
   }
 }
 
-window.addEventListener("DOMContentLoaded", cargarOrden);
+window.addEventListener("DOMContentLoaded", () => cargarOrden(false));
 window.addEventListener("beforeunload", detenerAutoRefresh);
 </script>
 </body>
